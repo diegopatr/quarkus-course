@@ -1,0 +1,30 @@
+# Configuração de normalização de quebras de linha (Line Endings)
+# Garante que arquivos de texto usem LF (padrão Unix/Linux) em vez de CRLF (Windows)
+* text=auto eol=lf
+
+# Arquivos de código fonte
+*.java text diff=java
+*.xml text
+*.properties text
+*.md text
+*.json text
+
+# Scripts de execução
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Arquivos Batch do Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Arquivos Binários (não devem ter normalização de quebra de linha)
+*.jar binary
+*.war binary
+*.zip binary
+*.tar.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
