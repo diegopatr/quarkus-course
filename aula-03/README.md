@@ -1,82 +1,81 @@
-# Aula 03: Arquitetura de Software e Padrões com Quarkus
+# Aula 03: Arquitetura e Padrões de Software com Quarkus
 
-Este projeto faz parte do curso de **ADS 175 - Jakarta EE** e tem como objetivo demonstrar a implementação de uma API REST robusta utilizando o framework **Quarkus**, explorando padrões de projeto fundamentais e a separação de responsabilidades em camadas.
+Este projeto integra o conteúdo da disciplina **ADS 175 - Jakarta EE**. O objetivo é demonstrar a implementação de uma API RESTful utilizando o framework **Quarkus**, enfatizando a aplicação de padrões de projeto e a separação de responsabilidades em camadas arquiteturais.
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias e Especificações
 
-- **Java 21**: Versão moderna do Java com foco em performance e simplicidade (Records, Streams, Pattern Matching).
-- **Quarkus**: Framework Java nativo para Kubernetes, otimizado para containers e microserviços.
-- **Jakarta REST (JAX-RS)**: Para criação dos endpoints da API.
-- **Jakarta CDI**: Para injeção de dependências e gerenciamento de contexto.
-- **Jackson**: Para serialização e desserialização de JSON.
-- **JUnit 5 & RestAssured**: Para testes automatizados da API.
+- **Java 21**: Uso de recursos modernos como Records, Streams e Pattern Matching.
+- **Quarkus**: Framework Java para ambientes nativos e microserviços.
+- **Jakarta REST (JAX-RS)**: Definição de endpoints e recursos web.
+- **Jakarta CDI**: Injeção de dependências e gerenciamento do ciclo de vida de objetos.
+- **Jackson**: Processamento e serialização de dados em formato JSON.
+- **JUnit 5 & RestAssured**: Frameworks para automação de testes de unidade e integração.
 
-## 🏗️ Arquitetura do Projeto
+## 🏗️ Arquitetura do Sistema
 
-A aplicação segue uma arquitetura em camadas bem definida, visando a manutenibilidade, testabilidade e separação de preocupações (*Separation of Concerns*).
+A aplicação adota uma arquitetura em camadas visando escalabilidade e manutenibilidade (*Separation of Concerns*).
 
 ### Camadas e Responsabilidades:
 
-1.  **Resource (Camada de API/Web):**
-    - Local: `br.upf.ads175.resource`
-    - Responsável por expor os endpoints REST.
-    - Lida com o protocolo HTTP (status codes, parâmetros de URL, query params).
-    - Utiliza exclusivamente **DTOs** para entrada e saída de dados.
-    - Delega toda a lógica de negócio para a camada de Service.
+1.  **Resource (Interface de Exposição):**
+    - Localização: `br.upf.ads175.resource`
+    - Atua na camada de borda, expondo endpoints REST.
+    - Gerencia o protocolo HTTP (status codes, URI parameters e query parameters).
+    - Utiliza exclusivamente **DTOs** para o tráfego de dados.
+    - Delega a execução das regras de negócio para a camada de Service.
 
-2.  **Service (Camada de Negócio):**
-    - Local: `br.upf.ads175.service`
-    - Contém as regras de negócio da aplicação.
-    - Atua como um **mapeador (translator)**: recebe DTOs, converte para Entidades para persistência e vice-versa.
-    - Utiliza **Java Streams** para processamento, filtragem e agregação de dados.
-    - Orquestra as chamadas ao Repositório.
+2.  **Service (Lógica de Negócio):**
+    - Localização: `br.upf.ads175.service`
+    - Centraliza as regras de negócio e orquestração do sistema.
+    - Executa o mapeamento (*translation*) entre DTOs e Entidades.
+    - Utiliza **Java Streams** para processamento e agregação de dados.
 
-3.  **Repository (Camada de Dados):**
-    - Local: `br.upf.ads175.repository`
-    - Responsável pela persistência e recuperação de dados.
-    - Nesta aula, utilizamos um **Repositório em Memória** (usando `ArrayList`), simulando o comportamento de um banco de dados real.
-    - Trabalha exclusivamente com **Entidades**.
-    - Padrão *Repository* isola a tecnologia de persistência do restante do sistema.
+3.  **Repository (Persistência):**
+    - Localização: `br.upf.ads175.repository`
+    - Gerencia a persistência e recuperação de dados.
+    - Implementa o padrão *Repository* para isolar a tecnologia de armazenamento.
+    - Opera estritamente com **Entidades**.
+    - Nesta aula, utiliza-se uma implementação em memória (ArrayList) para fins didáticos.
 
-4.  **Model & DTO (Modelo de Dados):**
-    - **Models (`br.upf.ads175.model`)**: Entidades de domínio que representam os dados internos do sistema (simulando tabelas de um banco de dados).
-    - **DTOs (`br.upf.ads175.dto`)**: *Data Transfer Objects*, implementados como **Java Records**, usados para definir o contrato da API com o mundo externo. Garante que mudanças internas no modelo não quebrem a API.
+4.  **Model & DTO (Representação de Dados):**
+    - **Models (`br.upf.ads175.model`)**: Entidades que representam o domínio interno.
+    - **DTOs (`br.upf.ads175.dto`)**: *Data Transfer Objects*, implementados como **Java Records**, que definem o contrato da API, garantindo o desacoplamento do modelo interno.
 
-## 🔄 Fluxo de Dados (DTO vs Entidade)
+## 🔄 Fluxo de Processamento (DTO vs Entidade)
 
-Um dos conceitos centrais desta aula é a distinção entre DTOs e Entidades:
+O projeto demonstra a distinção fundamental entre objetos de transferência e entidades de domínio:
 
--   **Requisição:** O cliente envia um JSON → O JAX-RS converte para `ProdutoDTO` → O `ProdutoService` converte `ProdutoDTO` para a entidade `Produto` → O `ProdutoRepository` salva a entidade `Produto`.
--   **Resposta:** O `ProdutoRepository` retorna a entidade `Produto` → O `ProdutoService` converte a entidade para `ProdutoDTO` → O JAX-RS serializa o `ProdutoDTO` para JSON e envia ao cliente.
+-   **Fluxo de Entrada:** Cliente (JSON) → JAX-RS (DTO) → Service (Entidade) → Repository.
+-   **Fluxo de Saída:** Repository (Entidade) → Service (DTO) → JAX-RS (JSON) → Cliente.
 
-Essa separação simula arquiteturas corporativas reais que utilizam JPA/Hibernate, onde as entidades são protegidas e os DTOs controlam o que é exposto na API.
+Esta abordagem simula arquiteturas corporativas reais (ex: JPA/Hibernate), onde o modelo de persistência é preservado e os DTOs controlam a exposição da API.
 
-## 🛠️ Endpoints da API
+## 🛠️ Endpoints Disponíveis
 
-A API de produtos está disponível em `/produtos` e oferece as seguintes funcionalidades:
+A API de produtos está acessível em `/produtos`:
 
--   `GET /produtos`: Lista todos os produtos ativos ordenados por nome.
--   `GET /produtos/{id}`: Busca um produto específico por ID.
--   `GET /produtos/por-categoria`: Agrupa nomes de produtos por categoria.
--   `GET /produtos/premium`: Filtra produtos com preço superior a R$ 1.000,00.
--   `GET /produtos/estatisticas`: Retorna estatísticas (média, máximo, quantidade) por categoria.
--   `GET /produtos/baratos?precoMaximo=500`: Filtra produtos por preço máximo.
--   `POST /produtos`: Cadastra um novo produto.
--   `DELETE /produtos/{id}`: Remove um produto do sistema.
+-   `GET /produtos`: Listagem de produtos ativos em ordem alfabética.
+-   `GET /produtos/{id}`: Recuperação de um produto por identificador único.
+-   `GET /produtos/por-categoria`: Agrupamento de produtos por categoria.
+-   `GET /produtos/premium`: Filtragem de produtos com valor superior a R$ 1.000,00.
+-   `GET /produtos/estatisticas`: Métricas agregadas por categoria.
+-   `GET /produtos/baratos?precoMaximo=500`: Filtragem por limite de preço.
+-   `POST /produtos`: Cadastro de novo recurso.
+-   `DELETE /produtos/{id}`: Remoção de recurso existente.
 
-## 🧪 Como Executar e Testar
+## 🧪 Procedimentos de Execução
 
-### Executando em modo de desenvolvimento:
+### Modo de Desenvolvimento:
 ```bash
 ./mvnw quarkus:dev
 ```
 
-### Executando os testes:
+### Execução de Testes:
 ```bash
 ./mvnw test
 ```
 
-### Exemplo de criação de produto (POST):
+### Exemplo de Payload (POST):
 ```json
 {
   "nome": "Mouse Vertical Ergonômico",
