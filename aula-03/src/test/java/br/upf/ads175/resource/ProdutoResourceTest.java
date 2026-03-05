@@ -1,4 +1,4 @@
-package br.edu.ifsp.aula03;
+package br.upf.ads175.resource;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
